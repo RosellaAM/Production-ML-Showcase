@@ -111,5 +111,50 @@ elif 'Upload Data' in page:
         if st.button('Use January Data'):
             use_january_data()
             st.success('January dataset selected!')
+    
+    with tab2:
+        st.subheader('February customer usage data')
+        st.dataframe(february_df)
+        if st.button('Use February Data'):
+            use_february_data()
+            st.success('February dataset selected!')
+    
+    with tab3:
+        st.subheader('March customer usage data')
+        st.dataframe(march_df)
+        if st.button('Use March Data'):
+            use_march_data()
+            st.success('March dataset selected!')
+    
+    with tab4:
+        st.subheader('Upload your cutumer usage data')
+        uploaded_file = st.file_uploader('Choose a CSV file', type='csv')
+        if uploaded_file is not None:
+            try:
+                user_data = pd.read_csv(uploaded_file)
+                st.write('Data preview')
+                st.dataframe(user_data)
+
+                # Validates columns
+                required_columns = ['calls', 'minutes', 'messages', 'mb_used']
+                missing_columns = [col for col in required_columns if col not in user_data.columns]
+
+                if missing_columns:
+                    st.error(f"Missing required columns: {', '.join(missing_columns)}")
+                    st.info("Your dataset must include: calls, minutes, messages, mb_used")
+                else:
+                    st.success('All required columns present!')
+                
+                # Checking datatypes
+                st.write("**Column Data Types:**")
+                st.write(user_data[required_columns].dtypes)
+
+                if st.button('Use Uploaded Data'):
+                    st.session_state['selected_dataset'] = user_data
+                    st.session_state['dataset_name'] = 'Your Uploaded Data'
+                    st.success("Uploaded dataset selected!")
+            except Exception as e:
+                st.error(f"Error reading file: {e}")
+
 
 # Interpret the result: 0 = Smart plan, 1 = Ultra plan
