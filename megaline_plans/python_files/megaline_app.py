@@ -1,5 +1,8 @@
 # Imports
 import joblib
+import requests
+import tempfile
+import os
 import pandas as pd
 import plotly_express as px
 import streamlit as st
@@ -16,13 +19,33 @@ def load_assets():
     try: 
         model_url = 'https://raw.githubusercontent.com/RosellaAM/Production-ML-Showcase/main/megaline_plans/joblib_files/megaline_model.joblib'
         scaler_url = 'https://raw.githubusercontent.com/RosellaAM/Production-ML-Showcase/main/megaline_plans/joblib_files/megaline_scaler.joblib'
-        model = joblib.load(model_url)
-        scaler = joblib.load(scaler_url)
+        
+        model_response = requests.get(model_url)
+        scaler_response = requests.get(scaler_url)
+        
+        # Create temporary files
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.joblib') as model_file:
+            model_file.write(model_response.content)
+            model_path = model_file.name
+            
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.joblib') as scaler_file:
+            scaler_file.write(scaler_response.content)
+            scaler_path = scaler_file.name
+
+        model = joblib.load(model_path)
+        scaler = joblib.load(scaler_path)
+        
+        # Clean up temporary files
+        os.unlink(model_path)
+        os.unlink(scaler_path)
+
         return model, scaler, True
     except Exception as e:
+        st.error(f"Error details: {e}")
         return None, None, False
     
 model, scaler, success = load_assets()
+
 if success:
     st.success('Model deployed successfully!')
 else:
@@ -30,8 +53,8 @@ else:
 
 # Sample datasets
 january_df = pd.read_csv('https://raw.githubusercontent.com/RosellaAM/Production-ML-Showcase/main/megaline_plans/datasets/megaline_january.csv')
-february_df = pd.read_csv('https://docs.google.com/spreadsheets/d/1rEZWwr0BvC5IMsJmhVk9FdnFMs9XbG7vwR-1BhgO-0Q/export?format=csv')
-march_df = pd.read_csv('https://docs.google.com/spreadsheets/d/1UN1Ohe3S_77tkQ-TBGWs3m_WpehafyVaNxSSPSptpmE/export?format=csv')
+february_df = pd.read_csv('https://raw.githubusercontent.com/RosellaAM/Production-ML-Showcase/main/megaline_plans/datasets/megaline_february.csv')
+march_df = pd.read_csv('https://raw.githubusercontent.com/RosellaAM/Production-ML-Showcase/main/megaline_plans/datasets/megaline_march.csv')
 
 # Functions to handle the datasets
 def use_january_data():
