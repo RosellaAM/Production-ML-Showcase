@@ -1,6 +1,6 @@
 # Production-ML-Showcase
 
-## 🚀 Machine Learning Deployment Portfolio
+## 🚀 Machine Learning Deployment Portfolio
 ### End-to-End ML Solutions in Production
 
 Welcome to my collection of production-ready machine learning applications. This portfolio showcases my ability to transform data science models into functional, user-friendly web applications that solve real business problems.
