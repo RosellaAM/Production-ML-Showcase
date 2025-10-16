@@ -14,8 +14,10 @@ if 'dataset_name' not in st.session_state:
 @st.cache_resource
 def load_assets():
     try: 
-        model = joblib.load('/megaline_plans/joblib_files/megaline_model_joblib')
-        scaler = joblib.load('/megaline_plans/joblib_files/megaline_scaler_joblib')
+        model_url = 'https://raw.githubusercontent.com/RosellaAM/Production-ML-Showcase/main/megaline_plans/joblib_files/megaline_model.joblib'
+        scaler_url = 'https://raw.githubusercontent.com/RosellaAM/Production-ML-Showcase/main/megaline_plans/joblib_files/megaline_scaler.joblib'
+        model = joblib.load(model_url)
+        scaler = joblib.load(scaler_url)
         return model, scaler, True
     except Exception as e:
         return None, None, False
@@ -27,7 +29,7 @@ else:
     st.error('Error loading model assets')
 
 # Sample datasets
-january_df = pd.read_csv('megaline_plans/datasets/megaline_january.csv')
+january_df = pd.read_csv('https://raw.githubusercontent.com/RosellaAM/Production-ML-Showcase/main/megaline_plans/datasets/megaline_january.csv')
 february_df = pd.read_csv('https://docs.google.com/spreadsheets/d/1rEZWwr0BvC5IMsJmhVk9FdnFMs9XbG7vwR-1BhgO-0Q/export?format=csv')
 march_df = pd.read_csv('https://docs.google.com/spreadsheets/d/1UN1Ohe3S_77tkQ-TBGWs3m_WpehafyVaNxSSPSptpmE/export?format=csv')
 
