@@ -46,11 +46,6 @@ def load_assets():
     
 model, scaler, success = load_assets()
 
-if success:
-    st.success('Model deployed successfully!')
-else:
-    st.error('Error loading model assets')
-
 # Sample datasets
 january_df = pd.read_csv('https://raw.githubusercontent.com/RosellaAM/Production-ML-Showcase/main/megaline_plans/datasets/megaline_january.csv')
 february_df = pd.read_csv('https://raw.githubusercontent.com/RosellaAM/Production-ML-Showcase/main/megaline_plans/datasets/megaline_february.csv')
