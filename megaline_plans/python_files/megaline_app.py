@@ -6,6 +6,11 @@ import os
 import pandas as pd
 import plotly_express as px
 import streamlit as st
+from streamlit_navigation_bar import st_navbar
+import pages as pg
+
+st.set_page_config(initial_sidebar_state="collapsed")
+
 
 # Initialize session state for dataset storage
 if 'selected_dataset' not in st.session_state:
@@ -64,40 +69,82 @@ def use_march_data():
     st.session_state['selected_dataset'] = march_df
     st.session_state['dataset_name'] = 'March Data'
 
-# Title
-st.title('Megaline Plan Recommendation Engine')
-st.divider()
 
-# Sidebar navegation
-with st.sidebar:
-    st.title('Navigation')
-    page = st.radio('Go to:', [
-        '🏠 Introduction',
-        '📁 Upload Data', 
-        '🤖 Batch Predictions', 
-        '👤 Single Client',
-        '📊 Results'
-    ])
+# Navegation bar
+pages = ['Home', 'Upload Data', 'Batch Predictions', 'Results', 'Github']
+parent_dir = os.path.dirname(os.path.abspath(__file__))
+urls = {'GitHub': 'https://github.com/RosellaAM'}
 
-# Page content based on selection
-if 'Introduction' in page:
-    st.header('Introduction')
-    st.write('**Drive Business Growth with AI-Powered Insights**')
-    st.write('Welcome to our intelligent plan recommendation system! This tool leverages machine learning to analyze customer usage patterns and recommend optimal mobile plans—helping you reduce churn and increase customer satisfaction through data-driven decisions.')
-    st.write('**How it works in 3 simple steps:**')
-    st.write('1. 📊 **Upload** your customer usage data or select one of the ones provided (CSV format).')
-    st.write('2. ⚡ **Analyze** with our AI model that has learned from thousands of patterns.')
-    st.write('3. 💡 **Optimize** with instant Smart vs Ultra plan recommendations.')
-    st.write('**Why it works:**')
-    st.write('Our optimized Random Forest model achieves **88% accuracy** by analyzing calls, minutes, messages, and data usage to identify when customers need plan upgrades—ensuring perfect fit without overpayment.')
-    st.write('*Outperforms baseline models by over 30% accuracy*')
-    st.write('**Start by uploading your data or testing with individual customers below!**')
+styles = {
+    "nav": {
+        "background-color": "maroon",
+        "justify-content": "left",
+    },
+    "img": {
+        "padding-right": "14px",
+    },
+    "span": {
+        "color": "white",
+        "padding": "14px",
+    },
+    "active": {
+        "background-color": "white",
+        "color": "var(--text-color)",
+        "font-weight": "normal",
+        "padding": "14px",
+    }
+}
+options = {
+    "show_menu": False,
+    "show_sidebar": False,
+}
+
+page = st_navbar(
+    pages,
+    urls=urls,
+    styles=styles,
+    options=options,
+)
+
+functions = {
+    "Home": pg.show_home,
+    "Upload Data": pg.show_upload_data,
+    "Batch Predictions": pg.show_batch_predictions,
+    "Results": pg.show_results,
+}
+
+go_to = functions.get(page)
+if go_to:
+    go_to()
+
+# Setting up pages functions
+
+# Home
+def show_home():
+    st.title('Megaline Plan Recommendation Engine')
     st.divider()
+    st.header('Introduction')
+    st.write(
+        """**Drive Business Growth with AI-Powered Insights**
+        Welcome to our intelligent plan recommendation system! This tool leverages machine learning 
+        to analyze customer usage patterns and recommend optimal mobile plans, helping you reduce churn 
+        and increase customer satisfaction through data-driven decisions.
+        **How it works in 3 simple steps:**
+        1. 📊 **Upload** your customer usage data or select one of the ones provided (CSV format).
+        2. ⚡ **Analyze** with our AI model that has learned from thousands of patterns.
+        3. 💡 **Optimize** with instant Smart vs Ultra plan recommendations.
+        **Why it works:**
+        Our optimized Random Forest model achieves **88% accuracy** by analyzing calls, minutes, messages, 
+        and data usage to identify when customers need plan upgrades—ensuring perfect fit without overpayment.
+        *Outperforms baseline models by over 30% accuracy*
+        **Start by uploading your data or testing with individual customers below!**"""
+        )
 
-elif 'Upload Data' in page:
+
+def show_upload_data():
     st.header('Upload Data')
     st.write('Choose from our pre-loaded sample datasets or upload your own customer data to get started with plan recommendations.')
-    st.caption("⚠️ Your dataset must include: calls, minutes, messages, mb_used. Missing columns will prevent predictions.")
+    st.caption('⚠️ Your dataset must include: calls, minutes, messages, mb_used. Missing columns will prevent predictions.')
     tab1, tab2, tab3, tab4 = st.tabs(['January Megaline Dataset', 'February Megaline Dataset', 'March Megaline Dataset', 'Upload Your Own'])
 
     with tab1:
