@@ -7,7 +7,6 @@ import pandas as pd
 import plotly_express as px
 import streamlit as st
 from streamlit_navigation_bar import st_navbar
-import pages as pg
 
 st.set_page_config(initial_sidebar_state="collapsed")
 
@@ -71,7 +70,7 @@ def use_march_data():
 
 
 # Navegation bar
-pages = ['Home', 'Upload Data', 'Batch Predictions', 'Results', 'Github']
+pages = ['Home', 'Upload Data', 'Batch Predictions', 'Results', 'GitHub']
 parent_dir = os.path.dirname(os.path.abspath(__file__))
 urls = {'GitHub': 'https://github.com/RosellaAM'}
 
@@ -106,19 +105,7 @@ page = st_navbar(
     options=options,
 )
 
-functions = {
-    "Home": pg.show_home,
-    "Upload Data": pg.show_upload_data,
-    "Batch Predictions": pg.show_batch_predictions,
-    "Results": pg.show_results,
-}
-
-go_to = functions.get(page)
-if go_to:
-    go_to()
-
 # Setting up pages functions
-
 # Home
 def show_home():
     st.title('Megaline Plan Recommendation Engine')
@@ -186,11 +173,7 @@ def show_upload_data():
                     st.info("Your dataset must include: calls, minutes, messages, mb_used")
                 else:
                     st.success('All required columns present!')
-                
-                # Checking datatypes
-                st.write("**Column Data Types:**")
-                st.write(user_data[required_columns].dtypes)
-
+    
                 if st.button('Use Uploaded Data'):
                     st.session_state['selected_dataset'] = user_data
                     st.session_state['dataset_name'] = 'Your Uploaded Data'
@@ -198,5 +181,15 @@ def show_upload_data():
             except Exception as e:
                 st.error(f"Error reading file: {e}")
 
+functions = {
+    "Home": show_home,
+    "Upload Data": show_upload_data,
+    "Batch Predictions": show_batch_predictions,
+    "Results": show_results,
+}
+
+go_to = functions.get(page)
+if go_to:
+    go_to()
 
 # Interpret the result: 0 = Smart plan, 1 = Ultra plan
