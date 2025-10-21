@@ -162,19 +162,17 @@ elif st.session_state['page'] == 'Upload Data':
 
 elif st.session_state['page'] == 'Batch Predictions':
     st.header('Batch Predictions')
-    st.write(
-        """**Choose your analysis approach:**
-        
-        🔍 **Full Analysis** - Process all customers at once for comprehensive insights  
-        🎯 **Targeted Range** - Focus on specific customer segments  
-        👤 **Individual Assessment** - Get detailed recommendations for a single customer
-
-        **How it works:**
-        1. Select your preferred analysis method below
-        2. Review the data preview
-        3. Generate predictions
-        4. View interpreted results on the next page"""
-        )
+    st.write('**Choose your analysis approach:**')
+    st.write('🔍 **Full Analysis** - Process all customers at once for comprehensive insights.')  
+    st.write('🎯 **Targeted Range** - Focus on specific customer segments.')
+    st.write('👤 **Individual Assessment** - Get detailed recommendations for a single customer.')
+    st.write('**How it works:**')
+    st.write('1. Select your preferred analysis method below.')
+    st.write('2. Review the data preview.')
+    st.write('3. Generate predictions.')
+    st.write('4. View interpreted results on the next page.')
+    
+    st.divider()
     
     # Verify a dataset is selected
     if st.session_state['selected_dataset'] is None:
@@ -182,7 +180,69 @@ elif st.session_state['page'] == 'Batch Predictions':
     else:
         st.success(f"Using: {st.session_state['dataset_name']}")
         st.dataframe(st.session_state['selected_dataset'])
+
+    st.divider()
     
-    # 
+    # Initializing session state for analysis methods
+    if 'analysis_mode' not in st.session_state:
+        st.session_state['analysis_mode'] = None
+    if 'selected_range' not in st.session_state:
+        st.session_state['selected_range'] = [0, 0]
+    if 'selected_clients' not in st.session_state:
+        st.session_state['selected_clients'] = []
+    if 'data_subset' not in st.session_state:
+        st.session_state['data_subset'] = None
+
+    # Setting the diffrent methods
+    st.subheader('Analysis Methods')
+    methods = st.selectbox( 
+        'Choose your prediction method',
+        ('Full dataset', 'Targeted customer range', 'Individual client'),
+                accept_new_options=False,
+        placeholder='select...'
+        )
+
+    # Full dataset
+    if methods == 'Full dataset':
+        st.session_state['analysis_mode'] = 'full'
+        st.session_state['data_subset'] = st.session_state['selected_dataset']
+        st.success('Full dataset selected!')
+
+    # Targeted range
+    if methods == 'Targeted customer range':
+        dataset_length = len(st.session_state['selected_dataset'])
+        range_selection = st.slider(
+            "Select customer range", 
+            min_value=0, 
+            max_value=dataset_length-1,
+            value=[0, min(49, dataset_length-1)]
+
+            ) 
+        st.session_state['analysis_mode'] = 'range'
+        st.session_state['selected_range'] = range_selection
+        st.session_state['data_subset'] = st.session_state['selected_dataset'].iloc[range_selection[0]:range_selection[1]]
+        st.success(f'Selected customers {range_selection[0]} to {range_selection[1]}!')
+    
+    if methods == 'Individual client':
+        client_options = st.session_state['selected_dataset'].index.tolist()
+        select_clients = st.multiselect(
+            'Select specific client/s',
+            options=client_options,
+            default=[client_options[0]] if client_options else []
+        )
+        st.session_state['analysis_mode'] = 'clients'
+        st.session_state['selected_clients'] = select_clients
+        st.session_state['data_subset'] = st.session_state['selected_dataset'].iloc[select_clients]
+        st.success(f'{len(select_clients)} clients selected!')
+    
+    st.divider()
+    if st.session_state['analysis_mode']:
+        st.subheader("📊 Data Preview")
+        st.write(f"Analysis Mode: {st.session_state['analysis_mode']}")
+        st.write(f"Rows to analyze: {len(st.session_state['data_subset'])}")
+        st.dataframe(st.session_state['data_subset'])
+
+    st.button('Create Prediction')
+
 
 # Interpret the result: 0 = Smart plan, 1 = Ultra plan
