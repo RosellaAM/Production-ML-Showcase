@@ -41,5 +41,4 @@ Key Features:
 * 📥 Export results functionality
 
 **Tech Stack:** Python Streamlit Scikit-learn Pandas Joblib
-
-[Live Demo] | [Code Details]
+[Live Demo](https://megalineapppy-tsf.streamlit.app/) | [Code Details](https://github.com/RosellaAM/Production-ML-Showcase/blob/main/megaline_plans/megaline_app.py)
