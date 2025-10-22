@@ -301,9 +301,7 @@ elif st.session_state['page'] == 'Results':
     ultra_count = sum(predictions == 1)
     smart_count = sum(predictions == 0)
     st.metric('Ultra Plan Recommendations', ultra_count)
-    st.write('Ideal for moderate usage patterns with balanced calls, messages, and data.')
     st.metric('Smart Plan Recommendations', smart_count)
-    st.write('Recommended for high-usage customers needing more data, minutes, or messaging capacity')
     st.divider()
 
     # Interpretation functions
@@ -334,9 +332,11 @@ elif st.session_state['page'] == 'Results':
 
     # Showing results
     st.subheader('Detailed Insights')
-    for i, (client_idx, prediction) in enumerate(zip(data_subset.index, predictions)) :
-        client_data = data_subset.iloc(client_idx)
-        plan_type, explenation, insights = generate_client_insights(client_data, predictions)
+    for i in range(len(data_subset)):
+        client_idx = i
+        prediction = predictions[i]
+        client_data = data_subset.iloc[i]
+        plan_type, explenation, insights = generate_client_insights(client_data, prediction)
 
         # Data for each client
         with st.expander(f"Client {client_idx} - {plan_type}"):
@@ -361,6 +361,7 @@ elif st.session_state['page'] == 'Results':
     st.divider()
 
     # Download results option
+    st.subheader('Optional results download')
     results_df = data_subset.copy(True)
     results_df['Recommended_Plan'] = ['Smart' if p == 0 else 'Ultra' for p in predictions]
     results_csv = results_df.to_csv(index=True)
