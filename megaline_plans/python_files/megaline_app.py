@@ -253,11 +253,13 @@ elif st.session_state['page'] == 'Batch Predictions':
         st.success(f'{len(select_clients)} clients selected!')
     
     st.divider()
-    if st.session_state['analysis_mode']:
+    if st.session_state['analysis_mode'] and st.session_state['data_subset'] is not None:
         st.subheader("📊 Data Preview")
         st.write(f"Analysis Mode: {st.session_state['analysis_mode']}")
         st.write(f"Rows to analyze: {len(st.session_state['data_subset'])}")
         st.dataframe(st.session_state['data_subset'])
+    elif st.session_state['analysis_mode']:
+        st.warning("Please select a dataset first to see the data preview.")
 
     # Making prediction with selected method
     def make_predictions(data_subset):
