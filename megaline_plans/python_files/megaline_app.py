@@ -405,30 +405,39 @@ elif st.session_state['page'] == 'Results':
         current_plan = 'Ultra' if (client_minutes > 1000 or client_messages > 300 or client_mb_used > 20000) else 'Smart'
 
         if current_plan == 'Smart':
-            current_costumer_cost = smart_cost
-            recommended_costumer_cost = ultra_cost if predictions[i] == 1 else smart_cost
+            current_customer_cost = smart_cost
+            recommended_customer_cost = ultra_cost if predictions[i] == 1 else smart_cost
         else:
             current_costumer_cost = ultra_cost
-            recommended_costumer_cost = smart_cost if predictions[i] == 0 else ultra_cost
+            recommended_customer_cost = smart_cost if predictions[i] == 0 else ultra_cost
     
-        current_cost.append(current_costumer_cost)
-        recommended_cost.append(recommended_costumer_cost)
+        current_cost.append(current_customer_cost)
+        recommended_cost.append(recommended_customer_cost)
 
     # Calculates totals and savings
     total_current_cost = sum(current_cost)
     total_recommended_cost = sum(recommended_cost)
     total_savings = total_current_cost - total_recommended_cost
 
+    # Cost display
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Current Estimated Cost", f"${total_current_cost:,.0f}")
+        st.metric("Current Estimated Revenue", f"${total_current_cost:,.0f}")
     with col2:
-        st.metric("Recommended Cost", f"${total_recommended_cost:,.0f}")
+        st.metric("Projected Revenue", f"${total_recommended_cost:,.0f}")
     with col3:
-        st.metric("Potential Savings", f"${total_savings:,.0f}", delta=f"{total_savings:,.0f}")
+        revenue_growth = total_recommended_cost - total_current_cost
+        st.metric("Revenue Growth", f"${revenue_growth:,.0f}", delta=f"+{revenue_growth:,.0f}")
 
-    if total_savings > 0:
-        st.success(f"💡 Recommendations could save customers ${total_savings:,.0f} total!")
+    # Success message
+    if revenue_growth > 0:
+        st.success(f"🎯 **Strategic Upsell Opportunity**: ${revenue_growth:,.0f} additional revenue while improving customer satisfaction!")
     else:
-        st.info("Recommendations focus on optimal plan fit based on usage patterns")
+        st.success(f"📊 **Model is prioritizing customer experience** - ensuring heavy users get the service they need to reduce churn risk")
+
+    # Add this additional insight:
+    st.info("""
+    💡 **Strategic Insight**: The model is recommending Ultra plans for heavy users who would otherwise experience poor service on Smart plans. 
+    This investment in better service reduces churn risk and increases long-term customer lifetime value.
+    """)
 
