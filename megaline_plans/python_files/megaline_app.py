@@ -105,10 +105,11 @@ if st.session_state['page'] == 'Home':
     st.write('*Outperforms baseline models by over 30% accuracy*')
     st.write('**Start by uploading your data or testing with individual customers!**')
 
-
+# Upload Data
 elif st.session_state['page'] == 'Upload Data':
     st.header('Upload Data')
     st.write('Choose from our pre-loaded sample datasets or upload your own customer data to get started with plan recommendations.')
+    st.caption('*Note: Once you select or upload your data, you will be redirected to the predictions page*')
     st.caption('⚠️ Your dataset must include: calls, minutes, messages, mb_used. Missing columns will prevent predictions.')
     tab1, tab2, tab3, tab4 = st.tabs(['January Megaline Dataset', 'February Megaline Dataset', 'March Megaline Dataset', 'Upload Your Own'])
 
@@ -118,6 +119,10 @@ elif st.session_state['page'] == 'Upload Data':
         if st.button('Use January Data'):
             use_january_data()
             st.success('January dataset selected!')
+            st.info("Redirecting to Batch Predictions page...")
+            time.sleep(3)
+            st.session_state['page'] = 'Batch Predictions'
+            st.rerun()
     
     with tab2:
         st.subheader('February customer usage data')
@@ -125,6 +130,10 @@ elif st.session_state['page'] == 'Upload Data':
         if st.button('Use February Data'):
             use_february_data()
             st.success('February dataset selected!')
+            st.info("Redirecting to Batch Predictions page...")
+            time.sleep(3)
+            st.session_state['page'] = 'Batch Predictions'
+            st.rerun()
     
     with tab3:
         st.subheader('March customer usage data')
@@ -132,6 +141,10 @@ elif st.session_state['page'] == 'Upload Data':
         if st.button('Use March Data'):
             use_march_data()
             st.success('March dataset selected!')
+            st.info("Redirecting to Batch Predictions page...")
+            time.sleep(3)
+            st.session_state['page'] = 'Batch Predictions'
+            st.rerun()
     
     with tab4:
         st.subheader('Upload your cutumer usage data')
@@ -156,11 +169,14 @@ elif st.session_state['page'] == 'Upload Data':
                     st.session_state['selected_dataset'] = user_data
                     st.session_state['dataset_name'] = 'Your Uploaded Data'
                     st.success("Uploaded dataset selected!")
+                    st.info("Redirecting to Batch Predictions page...")
+                    time.sleep(3)
+                    st.session_state['page'] = 'Batch Predictions'
+                    st.rerun()
             except Exception as e:
                 st.error(f"Error reading file: {e}")
-    
-    st.caption('Once you select a dataset please go to the batch predicitions page')
 
+# Batch Predictions
 elif st.session_state['page'] == 'Batch Predictions':
     st.header('Batch Predictions')
     st.write('**Choose your analysis approach:**')
@@ -268,5 +284,91 @@ elif st.session_state['page'] == 'Batch Predictions':
                 st.session_state['page'] = 'Results'
                 st.rerun()
 
+# Results
+elif st.session_state['page'] == 'Results':
+    st.header('Prediction Results')
+    # Verifying pred results
+    if 'prediction_results' not in st.session_state or st.session_state['prediction_results'] is None:
+        st.warning("No prediction results found. Please generate predictions first.")
+        if st.button("Go to Batch Predictions"):
+            st.session_state['page'] = 'Batch Predictions'
+            st.rerun()
+    else:
+        predictions = st.session_state['prediction_results']
+        data_subset = st.session_state['data_subset']
+    
+    st.subheader('📈 Summary')
+    ultra_count = sum(predictions == 1)
+    smart_count = sum(predictions == 0)
+    st.metric('Ultra Plan Recommendations', ultra_count)
+    st.write('Ideal for moderate usage patterns with balanced calls, messages, and data.')
+    st.metric('Smart Plan Recommendations', smart_count)
+    st.write('Recommended for high-usage customers needing more data, minutes, or messaging capacity')
+    st.divider()
 
-# Interpret the result: 0 = Smart plan, 1 = Ultra plan
+    # Interpretation functions
+    def interpret_prediction(prediction, client_data=None):
+        """
+        Convert 0/1 predictions to business-friendly explanations
+        """
+        if prediction == 0:
+            return "Smart Plan", "Ideal for moderate usage patterns with balanced calls, messages, and data."
+        else:
+            return "Ultra Plan", "Recommended for high-usage customers needing more data, minutes, or messaging capacity."
+    
+    def generate_client_insights(client_data, prediction):
+        """
+        Generate specific insights based on client usage patterns
+        """
+        plan_type, explanation = interpret_prediction(prediction)
+        
+        insights = []
+        if client_data['minutes'] > 500:
+            insights.append(f"High minutes usage ({client_data['minutes']} min)")
+        if client_data['mb_used'] > 15000:
+            insights.append(f"High data consumption ({client_data['mb_used']} MB)")
+        if client_data['calls'] > 100:
+            insights.append(f"Frequent caller ({client_data['calls']} calls)")
+        
+        return plan_type, explanation, insights
+
+    # Showing results
+    st.subheader('Detailed Insights')
+    for i, (client_idx, prediction) in enumerate(zip(data_subset.index, predictions)) :
+        client_data = data_subset.iloc(client_idx)
+        plan_type, explenation, insights = generate_client_insights(client_data, predictions)
+
+        # Data for each client
+        with st.expander(f"Client {client_idx} - {plan_type}"):
+            st.write(f'**Recommendation**: {plan_type}')
+            st.write(f'{explenation}')
+            if insights:
+                    st.write("**Key Usage Patterns:**")
+                    for insight in insights:
+                        st.write(f"- {insight}")
+            
+            # Clients actual data
+            st.write('Usage Summary')
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("Calls", client_data['calls'])
+            with col2:
+                st.metric("Minutes", client_data['minutes'])
+            with col3:
+                st.metric("Messages", client_data['messages'])
+            with col4:
+                st.metric("Data Used", f'{client_data['mb_used']} MB')                     
+    st.divider()
+
+    # Download results option
+    results_df = data_subset.copy(True)
+    results_df['Recommended_Plan'] = ['Smart' if p == 0 else 'Ultra' for p in predictions]
+    results_csv = results_df.to_csv(index=True)
+    st.download_button(
+        label='Download Results as CSV',
+        data=results_csv,
+        file_name='megaline_plan_recommendations.csv',
+        mime='text/csv'
+        )
+
+
