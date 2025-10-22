@@ -147,7 +147,7 @@ elif st.session_state['page'] == 'Upload Data':
             st.rerun()
     
     with tab4:
-        st.subheader('Upload your cutumer usage data')
+        st.subheader('Upload your customer usage data')
         uploaded_file = st.file_uploader('Choose a CSV file', type='csv')
         if uploaded_file is not None:
             try:
@@ -210,7 +210,7 @@ elif st.session_state['page'] == 'Batch Predictions':
     if 'data_subset' not in st.session_state:
         st.session_state['data_subset'] = None
 
-    # Setting the diffrent methods
+    # Setting the different methods
     st.subheader('Analysis Methods')
     methods = st.selectbox( 
         'Choose your prediction method',
@@ -265,7 +265,7 @@ elif st.session_state['page'] == 'Batch Predictions':
         features = data_subset[['calls', 'minutes', 'messages', 'mb_used']]
         # Scaling data
         features_scaled = scaler.transform(features)
-        # Makes pedictions
+        # Makes predictions
         predictions = model.predict(features_scaled)
         return predictions
 
@@ -286,7 +286,7 @@ elif st.session_state['page'] == 'Batch Predictions':
 # Results
 elif st.session_state['page'] == 'Results':
     st.header('Prediction Results')
-    # Verifying pred results
+    # Verifying prediction results
     if 'prediction_results' not in st.session_state or st.session_state['prediction_results'] is None:
         st.warning("No prediction results found. Please generate predictions first.")
         if st.button("Go to Batch Predictions"):
@@ -335,12 +335,12 @@ elif st.session_state['page'] == 'Results':
         client_idx = data_subset.index[i]
         prediction = predictions[i]
         client_data = data_subset.iloc[i]
-        plan_type, explenation, insights = generate_client_insights(client_data, prediction)
+        plan_type, explanation, insights = generate_client_insights(client_data, prediction)
 
         # Data for each client
         with st.expander(f"Client {client_idx} - {plan_type}"):
             st.write(f'**Recommendation**: {plan_type}')
-            st.write(f'{explenation}')
+            st.write(f'{explanation}')
             if insights:
                     st.write("**Key Usage Patterns:**")
                     for insight in insights:
@@ -407,7 +407,7 @@ elif st.session_state['page'] == 'Results':
             current_customer_cost = smart_cost
             recommended_customer_cost = ultra_cost if predictions[i] == 1 else smart_cost
         else:
-            current_costumer_cost = ultra_cost
+            current_customer_cost = ultra_cost
             recommended_customer_cost = smart_cost if predictions[i] == 0 else ultra_cost
     
         current_cost.append(current_customer_cost)
