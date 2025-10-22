@@ -361,12 +361,12 @@ elif st.session_state['page'] == 'Results':
     st.divider()
 
     # Download results option
-    st.subheader('Optional results download')
+    st.subheader('Download predictions results')
     results_df = data_subset.copy(True)
     results_df['Recommended_Plan'] = ['Smart' if p == 0 else 'Ultra' for p in predictions]
     results_csv = results_df.to_csv(index=True)
     st.download_button(
-        label='Download Results as CSV',
+        label='Download as CSV',
         data=results_csv,
         file_name='megaline_plan_recommendations.csv',
         mime='text/csv'
