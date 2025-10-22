@@ -242,7 +242,28 @@ elif st.session_state['page'] == 'Batch Predictions':
         st.write(f"Rows to analyze: {len(st.session_state['data_subset'])}")
         st.dataframe(st.session_state['data_subset'])
 
-    st.button('Create Prediction')
+    # Making prediction with selected method
+    def make_predictions(data_subset):
+        # Extracting columns
+        features = data_subset[['calls', 'minutes', 'messages', 'mb_used']]
+        # Scaling data
+        features_scaled = scaler.transform(features)
+        # Makes pedictions
+        predictions = model.predict(features_scaled)
+        return predictions
+
+    if st.session_state['analysis_mode'] and st.session_state['data_subset'] is not None:
+        if st.button('🚀 Creat Prediction'):
+            with st.spinner('Generating predictions...'):
+                predictions = make_predictions(st.session_state['data_subset'])
+                st.session_state['prediction_results'] = predictions
+                st.session_state['show_results'] = True
+
+                t.success("Predictions generated successfully!")
+                st.info("Redirecting to Results page...")
+
+                st.session_state['page'] = 'Results'
+                st.rerun()
 
 
 # Interpret the result: 0 = Smart plan, 1 = Ultra plan
