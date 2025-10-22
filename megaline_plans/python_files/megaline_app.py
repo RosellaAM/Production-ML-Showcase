@@ -270,19 +270,18 @@ elif st.session_state['page'] == 'Batch Predictions':
         return predictions
 
     if st.session_state['analysis_mode'] and st.session_state['data_subset'] is not None:
-        if st.button('🚀 Creat Prediction'):
+        if st.button('🚀 Create Prediction'):
             with st.spinner('Generating predictions...'):
                 predictions = make_predictions(st.session_state['data_subset'])
                 st.session_state['prediction_results'] = predictions
                 st.session_state['show_results'] = True
 
-                st.success("Predictions generated successfully!")
-                st.info("Redirecting to Results page...")
+            st.success("Predictions generated successfully!")
+            st.info("Redirecting to Results page...")
 
-                time.sleep(4)
-
-                st.session_state['page'] = 'Results'
-                st.rerun()
+            time.sleep(3)
+            st.session_state['page'] = 'Results'
+            st.rerun()
 
 # Results
 elif st.session_state['page'] == 'Results':
