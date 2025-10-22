@@ -84,6 +84,7 @@ if st.sidebar.button("Results", use_container_width=True):
 # Setting up pages functions
 # Home
 if st.session_state['page'] == 'Home':
+    top_placeholder = st.empty()
     st.title('Megaline Plan Recommendation Engine')
     st.divider()
     st.header('Introduction')
@@ -107,6 +108,7 @@ if st.session_state['page'] == 'Home':
 
 # Upload Data
 elif st.session_state['page'] == 'Upload Data':
+    top_placeholder = st.empty()
     st.header('Upload Data')
     st.write('Choose from our pre-loaded sample datasets or upload your own customer data to get started with plan recommendations.')
     st.caption('*Note: Once you select or upload your data, you will be redirected to the predictions page*')
@@ -178,6 +180,7 @@ elif st.session_state['page'] == 'Upload Data':
 
 # Batch Predictions
 elif st.session_state['page'] == 'Batch Predictions':
+    top_placeholder = st.empty()
     st.header('Batch Predictions')
     st.write('**Choose your analysis approach:**')
     st.write('🔍 **Full Analysis** - Process all customers at once for comprehensive insights.')  
@@ -287,6 +290,7 @@ elif st.session_state['page'] == 'Batch Predictions':
 
 # Results
 elif st.session_state['page'] == 'Results':
+    top_placeholder = st.empty()
     st.header('Prediction Results')
     # Verifying prediction results
     if 'prediction_results' not in st.session_state or st.session_state['prediction_results'] is None:
