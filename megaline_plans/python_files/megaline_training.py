@@ -30,8 +30,8 @@ model_train = RandomForestClassifier(n_estimators=200, max_depth=10, random_stat
 model_train.fit(X_train_scaled, y_train)
 model_train_score = model_train.score(X_test_scaled, y_test)
 y_train_pred = model_train.predict(X_test_scaled)
-print(f"Prediction score: {y_train_pred}")
-print(f"Training score: {round(model_train_score, 4)}")
+print(f"Model predictions: {y_train_pred}")
+print(f"Model accuracy score: {round(model_train_score, 4)}")
 
 # Testing prediction on a specific client
 client_25 = df.loc[df['client_id'] == 25, ['calls', 'minutes', 'messages', 'mb_used']]
@@ -46,10 +46,10 @@ final_model = RandomForestClassifier(n_estimators=200, max_depth=10, random_stat
 final_model.fit(X_scaled, y)
 model_score = final_model.score(X_scaled, y)
 y_pred = final_model.predict(X_scaled)
-print(f"Final model prediction score: {y_pred}")
+print(f"Final model predictions: {y_pred}")
 print(f"Final model accuracy score: {round(model_score, 4)}")
 
-# Joblib upload
+# Joblib save
 try: 
     joblib.dump(final_model, 'megaline_model.joblib')
     joblib.dump(final_scaler, 'megaline_scaler.joblib')
@@ -58,8 +58,8 @@ except Exception as e:
     print(f'Error saving files: {e}')
 
 
-# Creating modified dataset for the website
-# January dataset
+# Creating modified datasets for the website
+# January dataset
 df_january = df.copy(True)
 df_january = df_january.drop('is_ultra', axis=1)
 
