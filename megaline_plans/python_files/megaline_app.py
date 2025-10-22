@@ -1,11 +1,12 @@
 # Imports
 import joblib
-import requests
-import tempfile
 import os
 import pandas as pd
 import plotly_express as px
+import requests
 import streamlit as st
+import tempfile
+import time
 
 # Initialize session state for dataset storage
 if 'selected_dataset' not in st.session_state:
@@ -259,8 +260,10 @@ elif st.session_state['page'] == 'Batch Predictions':
                 st.session_state['prediction_results'] = predictions
                 st.session_state['show_results'] = True
 
-                t.success("Predictions generated successfully!")
+                st.success("Predictions generated successfully!")
                 st.info("Redirecting to Results page...")
+
+                time.sleep(4)
 
                 st.session_state['page'] = 'Results'
                 st.rerun()
