@@ -333,7 +333,7 @@ elif st.session_state['page'] == 'Results':
     # Showing results
     st.subheader('Detailed Insights')
     for i in range(len(data_subset)):
-        client_idx = i
+        client_idx = data_subset.index[i]
         prediction = predictions[i]
         client_data = data_subset.iloc[i]
         plan_type, explenation, insights = generate_client_insights(client_data, prediction)
@@ -371,5 +371,63 @@ elif st.session_state['page'] == 'Results':
         file_name='megaline_plan_recommendations.csv',
         mime='text/csv'
         )
+    st.divider()
 
+    # Cost analysis and ROI
+    st.subheader('💰 Cost Analysis & ROI')
+    def calculate_plan_cost(minutes, messages, mb_used, plan_type):
+        if plan_type == 'Smart':
+            base_cost = 20
+            extra_minutes = max(0, minutes - 500) * 0.03
+            extra_messages = max(0, messages - 50) * 0.03
+            extra_data = max(0, (mb_used - 15360) / 1024) * 10  # MB to GB
+            return base_cost + extra_minutes + extra_messages + extra_data
+        else:
+            base_cost = 70
+            extra_minutes = max(0, minutes - 3000) * 0.01
+            extra_messages = max(0, messages - 1000) * 0.01
+            extra_data = max(0, (mb_used - 30720) / 1024) * 7 # MB to GB
+            return base_cost + extra_minutes + extra_messages + extra_data
+    
+    current_cost = []
+    recomended_cost = []
+    for i in range(len(data_subset)):
+        client_data = data_subset.iloc[i]
+        client_minutes = client_data['minutes']
+        client_messages = client_data['messages']
+        client_mb_used = client_data['mb_used']
+
+        # Calculates cost for each plan
+        smart_cost = calculate_plan_cost(client_minutes, client_messages, client_mb_used, 'Smart')
+        ultra_cost = calculate_plan_cost(client_minutes, client_messages, client_mb_used, 'Ultra')
+
+        current_plan = 'Ultra' if (client_minutes > 1000 or client_messages > 300 or client_mb_used > 20000) else 'Smart'
+
+        if current_plan == 'Smart':
+            current_cost = smart_cost
+            recommended_cost = ultra_cost if predictions[i] == 1 else smart_cost
+        else:
+            current_cost = ultra_cost
+            recommended_cost = smart_cost if predictions[i] == 0 else ultra_cost
+    
+        current_cost.append(current_cost)
+        recommended_cost.append(recommended_cost)
+
+    # Calculates totals and savings
+    total_current_cost = sum(current_cost)
+    total_recommended_cost = sum(recommended_cost)
+    total_savings = total_current_cost - total_recommended_cost
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Current Estimated Cost", f"${total_current_cost:,.0f}")
+    with col2:
+        st.metric("Recommended Cost", f"${total_recommended_cost:,.0f}")
+    with col3:
+        st.metric("Potential Savings", f"${total_savings:,.0f}", delta=f"{total_savings:,.0f}")
+
+    if total_savings > 0:
+        st.success(f"💡 Recommendations could save customers ${total_savings:,.0f} total!")
+    else:
+        st.info("Recommendations focus on optimal plan fit based on usage patterns")
 
