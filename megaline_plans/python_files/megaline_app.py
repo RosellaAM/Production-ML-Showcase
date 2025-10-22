@@ -390,7 +390,8 @@ elif st.session_state['page'] == 'Results':
             return base_cost + extra_minutes + extra_messages + extra_data
     
     current_cost = []
-    recomended_cost = []
+    recommended_cost = []
+
     for i in range(len(data_subset)):
         client_data = data_subset.iloc[i]
         client_minutes = client_data['minutes']
@@ -404,14 +405,14 @@ elif st.session_state['page'] == 'Results':
         current_plan = 'Ultra' if (client_minutes > 1000 or client_messages > 300 or client_mb_used > 20000) else 'Smart'
 
         if current_plan == 'Smart':
-            current_cost = smart_cost
-            recommended_cost = ultra_cost if predictions[i] == 1 else smart_cost
+            current_costumer_cost = smart_cost
+            recommended_costumer_cost = ultra_cost if predictions[i] == 1 else smart_cost
         else:
-            current_cost = ultra_cost
-            recommended_cost = smart_cost if predictions[i] == 0 else ultra_cost
+            current_costumer_cost = ultra_cost
+            recommended_costumer_cost = smart_cost if predictions[i] == 0 else ultra_cost
     
-        current_cost.append(current_cost)
-        recommended_cost.append(recommended_cost)
+        current_cost.append(current_costumer_cost)
+        recommended_cost.append(recommended_costumer_cost)
 
     # Calculates totals and savings
     total_current_cost = sum(current_cost)
