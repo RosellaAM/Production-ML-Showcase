@@ -304,7 +304,8 @@ elif st.session_state['page'] == 'Batch Predictions':
             scroll_to_top()
             st.rerun()
 
-# Results
+
+# Results
 elif st.session_state['page'] == 'Results':
     st.header('Prediction Results')
     # Verifying prediction results
@@ -312,6 +313,7 @@ elif st.session_state['page'] == 'Results':
         st.warning("No prediction results found. Please generate predictions first.")
         if st.button("Go to Batch Predictions"):
             st.session_state['page'] = 'Batch Predictions'
+            scroll_to_top()
             st.rerun()
     else:
         predictions = st.session_state['prediction_results']
@@ -350,7 +352,7 @@ elif st.session_state['page'] == 'Results':
             
         return plan_type, explanation, insights
 
-    # Showing results
+    # Showing results
     st.subheader('Detailed Insights')
     for i in range(len(data_subset)):
         client_idx = data_subset.index[i]
@@ -358,106 +360,106 @@ elif st.session_state['page'] == 'Results':
         client_data = data_subset.iloc[i]
         plan_type, explanation, insights = generate_client_insights(client_data, prediction)
 
-        # Data for each client
+        # Data for each client
         with st.expander(f"Client {client_idx} - {plan_type}"):
             st.write(f'**Recommendation**: {plan_type}')
             st.write(f'{explanation}')
             if insights:
                 st.write("**Key Usage Patterns:**")
-            for insight in insights:
-                st.write(f"- {insight}")
-                
-        # Clients actual data
-        st.write('Usage Summary')
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("Calls", client_data['calls'])
-        with col2:
-            st.metric("Minutes", client_data['minutes'])
-        with col3:
-            st.metric("Messages", client_data['messages'])
-        with col4:
-            st.metric("Data Used", f'{client_data['mb_used']} MB')                     
-        st.divider()
+                for insight in insights:
+                    st.write(f"- {insight}")
+            
+            # Clients actual data
+            st.write('Usage Summary')
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("Calls", client_data['calls'])
+            with col2:
+                st.metric("Minutes", client_data['minutes'])
+            with col3:
+                st.metric("Messages", client_data['messages'])
+            with col4:
+                st.metric("Data Used", f'{client_data["mb_used"]} MB')
+    
+    st.divider()
 
-        # Download results option
-        st.subheader('Download predictions results')
-        results_df = data_subset.copy(True)
-        results_df['Recommended_Plan'] = ['Smart' if p == 0 else 'Ultra' for p in predictions]
-        results_csv = results_df.to_csv(index=True)
-        st.download_button(
-            label='Download as CSV',
-            data=results_csv,
-            file_name='megaline_plan_recommendations.csv',
-            mime='text/csv'
-            )
-        st.divider()
+    # Download results option - MOVED OUTSIDE THE LOOP
+    st.subheader('Download predictions results')
+    results_df = data_subset.copy(True)
+    results_df['Recommended_Plan'] = ['Smart' if p == 0 else 'Ultra' for p in predictions]
+    results_csv = results_df.to_csv(index=True)
+    st.download_button(
+        label='Download as CSV',
+        data=results_csv,
+        file_name='megaline_plan_recommendations.csv',
+        mime='text/csv'
+    )
+    st.divider()
 
-        # Cost analysis and ROI
-        st.subheader('💰 Cost Analysis & ROI')
-        def calculate_plan_cost(minutes, messages, mb_used, plan_type):
-            if plan_type == 'Smart':
-                base_cost = 20
-                extra_minutes = max(0, minutes - 500) * 0.03
-                extra_messages = max(0, messages - 50) * 0.03
-                extra_data = max(0, (mb_used - 15360) / 1024) * 10  # MB to GB
-                return base_cost + extra_minutes + extra_messages + extra_data
-            else:
-                base_cost = 70
-                extra_minutes = max(0, minutes - 3000) * 0.01
-                extra_messages = max(0, messages - 1000) * 0.01
-                extra_data = max(0, (mb_used - 30720) / 1024) * 7 # MB to GB
-                return base_cost + extra_minutes + extra_messages + extra_data
-        
-        current_cost = []
-        recommended_cost = []
-
-        for i in range(len(data_subset)):
-            client_data = data_subset.iloc[i]
-            client_minutes = client_data['minutes']
-            client_messages = client_data['messages']
-            client_mb_used = client_data['mb_used']
-
-            # Calculates cost for each plan
-            smart_cost = calculate_plan_cost(client_minutes, client_messages, client_mb_used, 'Smart')
-            ultra_cost = calculate_plan_cost(client_minutes, client_messages, client_mb_used, 'Ultra')
-
-            current_plan = 'Ultra' if (client_minutes > 1000 or client_messages > 300 or client_mb_used > 20000) else 'Smart'
-
-            if current_plan == 'Smart':
-                current_customer_cost = smart_cost
-                recommended_customer_cost = ultra_cost if predictions[i] == 1 else smart_cost
-            else:
-                current_customer_cost = ultra_cost
-                recommended_customer_cost = smart_cost if predictions[i] == 0 else ultra_cost
-        
-            current_cost.append(current_customer_cost)
-            recommended_cost.append(recommended_customer_cost)
-
-        # Calculates totals and savings
-        total_current_cost = sum(current_cost)
-        total_recommended_cost = sum(recommended_cost)
-        total_savings = total_current_cost - total_recommended_cost
-
-        # Cost display
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Current Estimated Revenue", f"${total_current_cost:,.0f}")
-        with col2:
-            st.metric("Projected Revenue", f"${total_recommended_cost:,.0f}")
-        with col3:
-            revenue_growth = total_recommended_cost - total_current_cost
-            st.metric("Revenue Growth", f"${revenue_growth:,.0f}", delta=f"+{revenue_growth:,.0f}")
-
-        # Success message
-        if revenue_growth > 0:
-            st.success(f"🎯 **Strategic Upsell Opportunity**: ${revenue_growth:,.0f} additional revenue while improving customer satisfaction!")
+    # Cost analysis and ROI - MOVED OUTSIDE THE LOOP
+    st.subheader('💰 Cost Analysis & ROI')
+    def calculate_plan_cost(minutes, messages, mb_used, plan_type):
+        if plan_type == 'Smart':
+            base_cost = 20
+            extra_minutes = max(0, minutes - 500) * 0.03
+            extra_messages = max(0, messages - 50) * 0.03
+            extra_data = max(0, (mb_used - 15360) / 1024) * 10  # MB to GB
+            return base_cost + extra_minutes + extra_messages + extra_data
         else:
-            st.success(f"📊 **Model is prioritizing customer experience** - ensuring heavy users get the service they need to reduce churn risk")
+            base_cost = 70
+            extra_minutes = max(0, minutes - 3000) * 0.01
+            extra_messages = max(0, messages - 1000) * 0.01
+            extra_data = max(0, (mb_used - 30720) / 1024) * 7  # MB to GB
+            return base_cost + extra_minutes + extra_messages + extra_data
+    
+    current_cost = []
+    recommended_cost = []
 
-        # Add this additional insight:
-        st.info("""
-        💡 **Strategic Insight**: The model is recommending Ultra plans for heavy users who would otherwise experience poor service on Smart plans. 
-        This investment in better service reduces churn risk and increases long-term customer lifetime value.
-        """)
+    for i in range(len(data_subset)):
+        client_data = data_subset.iloc[i]
+        client_minutes = client_data['minutes']
+        client_messages = client_data['messages']
+        client_mb_used = client_data['mb_used']
 
+        # Calculates cost for each plan
+        smart_cost = calculate_plan_cost(client_minutes, client_messages, client_mb_used, 'Smart')
+        ultra_cost = calculate_plan_cost(client_minutes, client_messages, client_mb_used, 'Ultra')
+
+        current_plan = 'Ultra' if (client_minutes > 1000 or client_messages > 300 or client_mb_used > 20000) else 'Smart'
+
+        if current_plan == 'Smart':
+            current_customer_cost = smart_cost
+            recommended_customer_cost = ultra_cost if predictions[i] == 1 else smart_cost
+        else:
+            current_customer_cost = ultra_cost
+            recommended_customer_cost = smart_cost if predictions[i] == 0 else ultra_cost
+    
+        current_cost.append(current_customer_cost)
+        recommended_cost.append(recommended_customer_cost)
+
+    # Calculates totals and savings
+    total_current_cost = sum(current_cost)
+    total_recommended_cost = sum(recommended_cost)
+    total_savings = total_current_cost - total_recommended_cost
+
+    # Cost display
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Current Estimated Revenue", f"${total_current_cost:,.0f}")
+    with col2:
+        st.metric("Projected Revenue", f"${total_recommended_cost:,.0f}")
+    with col3:
+        revenue_growth = total_recommended_cost - total_current_cost
+        st.metric("Revenue Growth", f"${revenue_growth:,.0f}", delta=f"+{revenue_growth:,.0f}")
+
+    # Success message
+    if revenue_growth > 0:
+        st.success(f"🎯 **Strategic Upsell Opportunity**: ${revenue_growth:,.0f} additional revenue while improving customer satisfaction!")
+    else:
+        st.success(f"📊 **Model is prioritizing customer experience** - ensuring heavy users get the service they need to reduce churn risk")
+
+    # Additional insight
+    st.info("""
+    💡 **Strategic Insight**: The model is recommending Ultra plans for heavy users who would otherwise experience poor service on Smart plans. 
+    This investment in better service reduces churn risk and increases long-term customer lifetime value.
+    """)
