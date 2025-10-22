@@ -315,9 +315,11 @@ elif st.session_state['page'] == 'Results':
             st.session_state['page'] = 'Batch Predictions'
             scroll_to_top()
             st.rerun()
-    else:
-        predictions = st.session_state['prediction_results']
-        data_subset = st.session_state['data_subset']
+
+        st.stop()
+    
+    predictions = st.session_state['prediction_results']
+    data_subset = st.session_state['data_subset']
         
     st.subheader('📈 Summary')
     ultra_count = sum(predictions == 1)
