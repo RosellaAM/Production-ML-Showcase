@@ -20,8 +20,8 @@ Welcome to my collection of production-ready machine learning applications. This
 
 ### 🛠️ Technical Stack
 **Core Technologies:**
-* Python Scikit-learn Streamlit Joblib Pandas
-* Plotly NumPy Git Google Drive API
+* Python, Scikit-learn, Streamlit, Joblib, Pandas
+* Plotly, NumPy, Git, Google Drive, API
 
 **ML Operations:**
 * Model serialization and versioning
