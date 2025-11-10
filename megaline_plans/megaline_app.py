@@ -19,8 +19,8 @@ if 'dataset_name' not in st.session_state:
 @st.cache_resource
 def load_assets():
     try: 
-        model_url = 'https://raw.githubusercontent.com/RosellaAM/Production-ML-Showcase/main/megaline_plans/joblib_files/megaline_model.joblib'
-        scaler_url = 'https://raw.githubusercontent.com/RosellaAM/Production-ML-Showcase/main/megaline_plans/joblib_files/megaline_scaler.joblib'
+        model_url = 'https://raw.githubusercontent.com/RosellaAM/Production-ML-Portafolio/main/megaline_plans/joblib_files/megaline_model.joblib'
+        scaler_url = 'https://raw.githubusercontent.com/RosellaAM/Production-ML-Portafolio/main/megaline_plans/joblib_files/megaline_scaler.joblib'
         
         model_response = requests.get(model_url)
         scaler_response = requests.get(scaler_url)
@@ -49,9 +49,9 @@ def load_assets():
 model, scaler, success = load_assets()
 
 # Sample datasets
-january_df = pd.read_csv('https://raw.githubusercontent.com/RosellaAM/Production-ML-Showcase/main/megaline_plans/datasets/megaline_january.csv')
-february_df = pd.read_csv('https://raw.githubusercontent.com/RosellaAM/Production-ML-Showcase/main/megaline_plans/datasets/megaline_february.csv')
-march_df = pd.read_csv('https://raw.githubusercontent.com/RosellaAM/Production-ML-Showcase/main/megaline_plans/datasets/megaline_march.csv')
+january_df = pd.read_csv('https://raw.githubusercontent.com/RosellaAM/Production-ML-Portafolio/main/megaline_plans/datasets/megaline_january.csv')
+february_df = pd.read_csv('https://raw.githubusercontent.com/RosellaAM/Production-ML-Portafolio/main/megaline_plans/datasets/megaline_february.csv')
+march_df = pd.read_csv('https://raw.githubusercontent.com/RosellaAM/Production-ML-Portafolio/main/megaline_plans/datasets/megaline_march.csv')
 
 # Functions to handle the datasets
 def use_january_data():
